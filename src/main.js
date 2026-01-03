@@ -2,55 +2,32 @@ import './styles/style.css'
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
-function initCheckSectionThemeScroll() {
+/* Navbar Scroll Hide/Show */
+function navbarScroll() {
+  const nav = document.querySelector(".nav");
+  let hidden = false;
 
-  const navBarHeight = document.querySelector("[data-nav-bar-height]")
-  const themeObserverOffset = navBarHeight ? navBarHeight.offsetHeight / 2 : 0;
-
-  function checkThemeSection() {
-    const themeSections = document.querySelectorAll("[data-theme-section]");
-
-    themeSections.forEach(function(themeSection) {
-      const rect = themeSection.getBoundingClientRect();
-      const themeSectionTop = rect.top;
-      const themeSectionBottom = rect.bottom;
-
-      // If the offset is between the top & bottom of the current section
-      if (themeSectionTop <= themeObserverOffset && themeSectionBottom >= themeObserverOffset) {
-        // Check [data-theme-section]
-        const themeSectionActive = themeSection.getAttribute("data-theme-section");
-        document.querySelectorAll("[data-theme-nav]").forEach(function(elem) {
-          if (elem.getAttribute("data-theme-nav") !== themeSectionActive) {
-            elem.setAttribute("data-theme-nav", themeSectionActive);
-          }
-        });
-
-        // Check [data-bg-section]
-        const bgSectionActive = themeSection.getAttribute("data-bg-section");
-        document.querySelectorAll("[data-bg-nav]").forEach(function(elem) {
-          if (elem.getAttribute("data-bg-nav") !== bgSectionActive) {
-            elem.setAttribute("data-bg-nav", bgSectionActive);
-          }
-        });
+  ScrollTrigger.create({
+    start: 0,
+    end: "max",
+    onUpdate: (self) => {
+      if (self.direction === 1 && !hidden) {
+        hidden = true;
+        gsap.to(nav, { yPercent: -101, duration: 0.8, ease: "expo.out" });
+      } else if (self.direction === -1 && hidden) {
+        hidden = false;
+        gsap.to(nav, { yPercent: 0, duration: 0.6, ease: "expo.out" });
       }
-    });
-  }
-
-  function startThemeCheck() {
-    document.addEventListener("scroll", checkThemeSection);
-  }
-
-  // Initial check and start listening for scroll
-  checkThemeSection();
-  startThemeCheck();
+    }
+  });
 }
 
-initCheckSectionThemeScroll();
+navbarScroll();
 
 /* Text Reveals */
 const splitConfig = {
   lines: { duration: 1, stagger: 0.08 },
-  words: { duration: 0.6, stagger: 0.06 },
+  words: { duration: 0.6, stagger: 0.08 },
   chars: { duration: 0.4, stagger: 0.01 }
 }
 
@@ -80,7 +57,7 @@ function initMaskTextScrollReveal() {
           ease: 'expo.out',
           scrollTrigger: {
             trigger: heading,
-            start: 'clamp(top 80%)',
+            start: 'clamp(top 75%)',
             once: true
           }
         });
@@ -284,3 +261,86 @@ function initDirectionalListHover() {
 }
 
 initDirectionalListHover();
+
+
+/* Studio Image Scale */
+function studioGalleryScroll() {
+  gsap.to("[img-scale]", {
+    width: "100vw",
+    ease: "none",
+    scrollTrigger: {
+      trigger: ".studio-gallery",
+      start: "top top",
+      pin: true,
+      scrub: true,
+      anticipatePin: 1,
+      onLeave: () => {
+        ScrollTrigger.refresh();
+      },
+      onLeaveBack: () => {
+        ScrollTrigger.refresh();
+      }
+    }
+  });
+}
+
+studioGalleryScroll();
+
+
+/* Highlight Text on Scroll */
+function initHighlightText(){
+
+  let splitHeadingTargets = document.querySelectorAll("[data-highlight-text]")
+  splitHeadingTargets.forEach((heading) => {
+    
+    const scrollStart = heading.getAttribute("data-highlight-scroll-start") || "top 75%"
+    const scrollEnd = heading.getAttribute("data-highlight-scroll-end") || "bottom 60%"
+    const fadedValue = heading.getAttribute("data-highlight-fade") || 0.35 // Opacity of letter
+    const staggerValue =  heading.getAttribute("data-highlight-stagger") || 0.1 // Smoother reveal
+    
+    new SplitText(heading, {
+      type: "words, chars",
+      autoSplit: true,
+      onSplit(self) {
+        let ctx = gsap.context(() => {
+          let tl = gsap.timeline({
+            scrollTrigger: {
+              scrub: true,
+              trigger: heading, 
+              start: scrollStart,
+              end: scrollEnd
+            }
+          })
+          tl.from(self.chars,{
+            autoAlpha: fadedValue,
+            stagger: staggerValue,
+            ease: "linear"
+          })
+        });
+        return ctx; // return our animations so GSAP can clean them up when onSplit fires
+      }
+    });    
+  });
+}
+
+initHighlightText();
+
+/* Industries Color Change */
+function industriesScroll() {
+  gsap.utils.toArray(".industries-item").forEach((item) => {
+    gsap.to(item, {
+      color: "#E24431",
+      opacity: 1,
+      duration: 0.1,
+      scrollTrigger: {
+        trigger: item,
+        start: "top 40%",
+        end: "bottom 40%",
+        toggleActions: "play reverse play reverse"
+      }
+    });
+  });
+}
+
+industriesScroll();
+
