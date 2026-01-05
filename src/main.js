@@ -274,12 +274,7 @@ function studioGalleryScroll() {
       pin: true,
       scrub: true,
       anticipatePin: 1,
-      onLeave: () => {
-        ScrollTrigger.refresh();
-      },
-      onLeaveBack: () => {
-        ScrollTrigger.refresh();
-      }
+      refreshPriority: 1
     }
   });
 }
@@ -344,3 +339,57 @@ function industriesScroll() {
 
 industriesScroll();
 
+/* Expertise Scroll */
+function expertiseWorkScroll() {
+    const root = document.querySelector('.expertise-work')
+    const pinHeight = root.querySelector('.expertise-work-height')
+    const container = root.querySelector('.expertise-work-container')
+
+    ScrollTrigger.create({
+        trigger: pinHeight, // Listen to pin-height
+        start:'top top',
+        end:'bottom bottom',
+        pin: container, // The pinned section
+    })
+
+    let gap = 40
+    const medias = root.querySelectorAll('.expertise-work-item')
+    const distPerMedia = (pinHeight.clientHeight - window.innerHeight) / medias.length
+
+    
+    gsap.set(medias, {
+        y: gap * (medias.length - 1),
+        z: -gap * (medias.length -1)
+    })
+    
+    medias.forEach((media, index) => {
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: pinHeight, // Listen to pin-height position
+                start: 'top top+=' + (distPerMedia * index),
+                end: 'bottom bottom+=' + (distPerMedia * index),
+                scrub: true,
+                
+            }
+        })
+
+        for(let i = 0; i < medias.length - 1; i++){
+            tl.to(media, {
+                // Gains one position in the deck queue
+                y: "-=" + gap,
+                z: "+=" + gap,
+                ease:'power1.inOut'
+            })
+        }
+        
+        tl.to(media, {
+            yPercent: -100, // Moves up by 80% of its height
+            y: '-50vh', // Moves up to half the screen
+            scale: 0.8,
+            rotation: (Math.random() - 0.5) * 50, // Will be different for each media
+            ease:'power1.inOut'
+        })
+    })
+  }
+
+  expertiseWorkScroll();
