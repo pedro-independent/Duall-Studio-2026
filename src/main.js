@@ -1,5 +1,3 @@
-import './styles/style.css'
-
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 /* Navbar Scroll Hide/Show */
