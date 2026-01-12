@@ -78,6 +78,7 @@ initMaskTextScrollReveal()
 function initContentRevealScroll(){
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  const ctx = gsap.context(() => {
 
     document.querySelectorAll('[data-reveal-group]').forEach(groupEl => {
       // Config from attributes or defaults (group-level)
